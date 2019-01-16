@@ -19,6 +19,7 @@ __author__ = 'alexortizrosado@gmail.com (Alex Ortiz-Rosado)'
 
 import logging
 import requests
+import json
 
 from .utils import make_enum
 
@@ -114,7 +115,7 @@ class BreezeApi(object):
         """Predicate to ensure that the HTTP request succeeded."""
         return not (('errors' in response) or ('errorCode' in response))
 
-    def get_people(self, limit=None, offset=None, details=False):
+    def get_people(self, limit=None, offset=None, details=False, filter=None):
         """List people from your database.
 
         Args:
@@ -122,6 +123,7 @@ class BreezeApi(object):
           offset: Number of people to skip before beginning to return results.
                   Can be used in conjunction with limit for pagination.
           details: Option to return all information (slower) or just names.
+          filter: Accept a dictionary of filters. E.g. tag_filter['tag_contains']='y_12345'
 
         returns:
           JSON response. For example:
@@ -148,6 +150,8 @@ class BreezeApi(object):
             params.append('offset=%s' % offset)
         if details:
             params.append('details=1')
+        if filter:
+            params.append('filter_json=%s' % json.dumps(filter))
         return self._request('%s/?%s' % (ENDPOINTS.PEOPLE, '&'.join(params)))
 
     def get_profile_fields(self):
